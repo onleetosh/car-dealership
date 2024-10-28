@@ -42,7 +42,7 @@ public class Main {
 
                         System.out.printf("%33s | %22s | %20s \n", name, address, contact);
                        // System.out.println("Dealership Name - " + name + ", Address - " + address + ", Contact- " + contact);
-                        System.out.printf("%10s | %20s | %10s |%10s | %20s | %10s| %20s | %10s \n",
+                        System.out.printf("%10s | %20s | %10s |%10s | %20s | %10s | %20s | %10s \n",
                                 "Vin", "Year", "Make", "Model", "Vehicle Type", "Color", "Odometer", "Price");
 
 
@@ -59,7 +59,7 @@ public class Main {
                                 int odometer = Integer.parseInt(vTokens[6]);
                                 double price = Double.parseDouble(vTokens[7]);
 
-                                System.out.printf("%10s | %20s | %10s |%10s | %20s | %10s| %20s | %10s \n",
+                                System.out.printf("%10s | %20s | %10s |%10s | %20s | %10s | %20s | %10s \n",
                                         vin, year,make, model, vehicleType, color, odometer, price );
 
                                 vehicles.add(new Vehicle(vin, year, make, model, vehicleType, color, odometer, price));

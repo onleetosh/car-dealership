@@ -8,15 +8,15 @@
 package com.pluralsight;
 
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
 public class DealershipFileManager {
 
     private static final String dataFileName = "inventory.csv";
+
+    private static ArrayList<Dealership> dealerships = getDealership();
 
     /**
      * This method loads and reads the inventory.csv file and uses the data in the file to create the Dealership object
@@ -44,7 +44,7 @@ public class DealershipFileManager {
 
                         System.out.printf("%33s | %22s | %20s \n", name, address, contact);
                         // System.out.println("Dealership Name - " + name + ", Address - " + address + ", Contact- " + contact);
-                        System.out.printf("%10s | %20s | %10s |%10s | %20s | %10s| %20s | %10s \n",
+                        System.out.printf("%10s | %20s | %10s |%10s | %20s | %10s | %20s | %10s \n",
                                 "Vin", "Year", "Make", "Model", "Vehicle Type", "Color", "Odometer", "Price");
 
                         // Loop through the rest of the file to read vehicles
@@ -60,7 +60,7 @@ public class DealershipFileManager {
                                 int odometer = Integer.parseInt(vTokens[6]);
                                 double price = Double.parseDouble(vTokens[7]);
 
-                                System.out.printf("%10s | %20s | %10s |%10s | %20s | %10s| %20s | %10s \n",
+                                System.out.printf("%10s | %20s | %10s |%10s | %20s | %10s | %20s | %10s \n",
                                         vin, year,make, model, vehicleType, color, odometer, price );
 
                                 vehicles.add(new Vehicle(vin, year, make, model, vehicleType, color, odometer, price));
@@ -86,7 +86,24 @@ public class DealershipFileManager {
      * This method overwrites the inventory.csv file with the current dealership information and inventory list
      * @param dealership
      */
-    public void saveDealership(Dealership dealership) {
+    public static void saveDealership(Dealership dealership) {
+        try {
+            //create a FileWriter to append data to file
+            FileWriter fw = new FileWriter(dataFileName, true);
+            BufferedWriter bw = new BufferedWriter(fw);
 
+            // Get the most recent dealership in the file
+            Dealership newDealership = dealerships.get(dealerships.size() - 1);
+
+            //format data as a string
+            String data = newDealership.getName() + "|" +
+                    newDealership.getAddress() + "|" +
+                    newDealership.getContact() + "\n";
+
+            fw.write(data); // Write the dealership data to the file.
+            bw.close(); //close and release the date
+        } catch (Exception e) {
+            System.out.println("FILE WRITE ERROR");
+        }
     }
 }

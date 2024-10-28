@@ -25,6 +25,13 @@ public class Dealership {
 
     }
 
+    public Dealership(String name, String address, String contact, ArrayList<Vehicle> vehicles) {
+        this.name = name;
+        this.address = address;
+        this.contact = contact;
+        this.inventory = new ArrayList<>();
+    }
+
     public String getName() { return name; }
     public String getAddress() { return address; }
     public String getContact() { return contact; }

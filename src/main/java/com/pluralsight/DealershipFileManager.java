@@ -7,16 +7,16 @@
 
 package com.pluralsight;
 
-
 import java.io.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 public class DealershipFileManager {
 
     private static final String dataFileName = "inventory.csv";
 
-    private static ArrayList<Dealership> dealerships = getDealership();
+    private static List<Dealership> dealerships = getDealership();
 
     /**
      * This method loads and reads the inventory.csv file and uses the data in the file to create the Dealership object

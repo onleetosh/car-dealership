@@ -8,102 +8,81 @@
 package com.pluralsight;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
 
 public class DealershipFileManager {
+    
+    public static Dealership getFromCSV(String filename){
 
-    private static final String dataFileName = "inventory.csv";
+        Dealership dealership = null;
 
-    private static List<Dealership> dealerships = getDealership();
+        try{
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(filename));
 
-    /**
-     * This method loads and reads the inventory.csv file and uses the data in the file to create the Dealership object
-     * and populates the inventory with a list of Vehicles
-     */
-    public static ArrayList<Dealership> getDealership() {
+            String fileLine;
 
-        ArrayList<Dealership> dealerships = new ArrayList<>();
-        ArrayList<Vehicle> vehicles = new ArrayList<>();
+            String[] dealershipTokens = bufferedReader.readLine().split("\\|");
+            String name = dealershipTokens[0];
+            String address = dealershipTokens[1];
+            String phone = dealershipTokens[2];
+            dealership = new Dealership(name, address, phone);
 
-        try (BufferedReader br = new BufferedReader(new FileReader(dataFileName))) {
-            String inputFile;
-
-            // Read the first line containing dealership info
-            inputFile = br.readLine();
-
-            if (inputFile != null) {
-                String[] dsTokens = inputFile.split(Pattern.quote("|"));
-                if (dsTokens.length == 3) {
-                    try {
-                        String name = dsTokens[0];
-                        String address = dsTokens[1];
-                        String contact = dsTokens[2];
-
-
-                        System.out.printf("%33s | %22s | %20s \n", name, address, contact);
-                        // System.out.println("Dealership Name - " + name + ", Address - " + address + ", Contact- " + contact);
-                        System.out.printf("%10s | %20s | %10s |%10s | %20s | %10s | %20s | %10s \n",
-                                "Vin", "Year", "Make", "Model", "Vehicle Type", "Color", "Odometer", "Price");
-
-                        // Loop through the rest of the file to read vehicles
-                        while ((inputFile = br.readLine()) != null) {
-                            String[] vTokens = inputFile.split(Pattern.quote("|"));
-                            if (vTokens.length == 8) {
-                                int vin = Integer.parseInt(vTokens[0]);
-                                int year = Integer.parseInt(vTokens[1]);
-                                String make = vTokens[2];
-                                String model = vTokens[3];
-                                String vehicleType = vTokens[4];
-                                String color = vTokens[5];
-                                int odometer = Integer.parseInt(vTokens[6]);
-                                double price = Double.parseDouble(vTokens[7]);
-
-                                System.out.printf("%10s | %20s | %10s |%10s | %20s | %10s | %20s | %10s \n",
-                                        vin, year,make, model, vehicleType, color, odometer, price );
-
-                                vehicles.add(new Vehicle(vin, year, make, model, vehicleType, color, odometer, price));
-                            }
-                        }
-                        // Add dealership with vehicles
-                        dealerships.add(new Dealership(name, address, contact, new ArrayList<>(vehicles)));
-                    } catch (Exception e) {
-                        System.out.println("Error processing dealership or vehicles");
-                        e.printStackTrace();
-                    }
+            while((fileLine = bufferedReader.readLine()) != null){
+                String[] vehicleTokens = fileLine.split("\\|");
+                if(vehicleTokens.length == 8){
+                    int vin = Integer.parseInt(vehicleTokens[0]);
+                    int year = Integer.parseInt(vehicleTokens[1]);
+                    String make = vehicleTokens[2];
+                    String model = vehicleTokens[3];
+                    String vehicleType = vehicleTokens[4];
+                    String color = vehicleTokens[5];
+                    int odometer = Integer.parseInt(vehicleTokens[6]);
+                    double price = Double.parseDouble(vehicleTokens[7]);
+                    Vehicle vehicle = new Vehicle(vin, year, make, model, vehicleType, color, odometer, price);
+                    dealership.addVehicleToInventory(vehicle);
                 }
             }
-        } catch (IOException e) {
-            System.out.println("Error reading file");
+            bufferedReader.close();
+        }catch(Exception e){
             e.printStackTrace();
         }
 
-        return dealerships;
+        return dealership;
     }
 
-    /**
-     * This method overwrites the inventory.csv file with the current dealership information and inventory list
-     * @param dealership
-     */
-    public static void saveDealership(Dealership dealership) {
+    public static void saveToCSV(Dealership dealership, String filename){
         try {
-            //create a FileWriter to append data to file
-            FileWriter fw = new FileWriter(dataFileName, true);
+            //Creating a file writer and assigning the file writer to the buffered writer.
+            FileWriter fw = new FileWriter(filename);
             BufferedWriter bw = new BufferedWriter(fw);
 
-            // Get the most recent dealership in the file
-            Dealership newDealership = dealerships.get(dealerships.size() - 1);
+            bw.write(getEncodedDealershipHeader(dealership));
 
-            //format data as a string
-            String data = newDealership.getName() + "|" +
-                    newDealership.getAddress() + "|" +
-                    newDealership.getContact() + "\n";
+            // Loop through transactions and write each one to the file
+            for (Vehicle vehicle : dealership.getAllVehicles()) {
+                bw.write(getEncodedVehicle(vehicle));
+            }
+            bw.close(); // Close the BufferedWriter
 
-            fw.write(data); // Write the dealership data to the file.
-            bw.close(); //close and release the date
-        } catch (Exception e) {
-            System.out.println("FILE WRITE ERROR");
+        } catch (IOException e){
+            System.out.println("Error while saving Transactions: " + e.getMessage());
         }
     }
+
+    private static String getEncodedDealershipHeader(Dealership dealership){
+        return dealership.getName() + "|" + dealership.getAddress() + "|" + dealership.getPhone() + "\n";
+    }
+
+    private static String getEncodedVehicle(Vehicle vehicle){
+        return new StringBuilder()
+                .append(vehicle.getVin()).append("|")
+                .append(vehicle.getYear()).append("|")
+                .append(vehicle.getMake()).append("|")
+                .append(vehicle.getModel()).append("|")
+                .append(vehicle.getVehicleType()).append("|")
+                .append(vehicle.getColor()).append("|")
+                .append(vehicle.getOdometer()).append("|")
+                .append(vehicle.getPrice()).append("\n").toString();
+    }
+
+
 }
